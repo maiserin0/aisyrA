@@ -1,10 +1,69 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+:root {
+  --bg: #0a0a0a;
+  --panel: #141414;
+  --accent: rgba(255, 255, 255, 0.06);
+  --primary: #e50914;
+  --text: #ffffff;
+  --text-dim: #a1a1a1;
+}
 
 @layer base {
   body {
-    background-color: #000;
-    color: #fff;
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans), system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+}
+
+@layer components {
+  .page-shell {
+    min-height: 100vh;
+    background-image:
+      radial-gradient(600px 380px at 50% -10%, rgba(229, 9, 20, 0.18), transparent 70%),
+      radial-gradient(280px 240px at 85% 30%, rgba(255, 255, 255, 0.06), transparent 70%),
+      linear-gradient(180deg, rgba(0, 0, 0, 0.35), transparent 40%);
+  }
+
+  .panel-card {
+    background: #171717;
+    border: 1px solid var(--accent);
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.65);
+    border-radius: 22px;
+  }
+
+  .logo-mark {
+    font-family: var(--font-display), var(--font-sans), system-ui, sans-serif;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .room-shell {
+    background: radial-gradient(circle at 30% 0%, rgba(229, 9, 20, 0.12), transparent 60%),
+      #0a0a0a;
+  }
+
+  .control-panel {
+    background: var(--panel);
+    border: 1px solid var(--accent);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+  }
+}
+
+@layer utilities {
+  .fade-in {
+    animation: fade-in 420ms ease-out both;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

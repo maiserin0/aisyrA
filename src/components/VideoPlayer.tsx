@@ -2,8 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Hls from "hls.js";
-import { Play, Pause, Maximize, Volume2, VolumeX } from "lucide-react";
-import { cn } from "@/lib/utils"; // standard UI tailwind-merge helper
+import { Maximize, Volume2, VolumeX } from "lucide-react";
 
 interface VideoPlayerProps {
   url: string;
@@ -14,12 +13,16 @@ interface VideoPlayerProps {
     onPlay: (time: number) => void;
     onPause: (time: number) => void;
     onSeek: (time: number) => void;
+    updateMyProgress: (time: number, isPlaying: boolean) => void;
+    syncToFarthest: () => void;
   };
   userId: string;
 }
 
 export default function VideoPlayer({ url, roomSync, userId }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const lastProgressSentAtRef = useRef(0);
   const [hls, setHls] = useState<Hls | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -37,8 +40,14 @@ export default function VideoPlayer({ url, roomSync, userId }: VideoPlayerProps)
 
     if (Hls.isSupported()) {
       newHls = new Hls({
-         // Optimize for slow internet logic config could go here setup
-         maxBufferLength: 30, // HLS adaptive streaming limits
+        enableWorker: true,
+        lowLatencyMode: true,
+        backBufferLength: 30,
+        maxBufferLength: 8,
+        maxMaxBufferLength: 30,
+        maxBufferHole: 0.5,
+        nudgeOffset: 0.1,
+        nudgeMaxRetry: 5,
       });
       newHls.loadSource(url);
       newHls.attachMedia(video);
@@ -59,6 +68,14 @@ export default function VideoPlayer({ url, roomSync, userId }: VideoPlayerProps)
     };
   }, [url]);
 
+  // Apply volume/mute to the actual media element
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.volume = Math.min(1, Math.max(0, muted ? 0 : volume));
+    video.muted = muted || volume === 0;
+  }, [volume, muted]);
+
   // 2: Apply Sync state (Watch Party Sync Logic)
   useEffect(() => {
     const video = videoRef.current;
@@ -74,9 +91,20 @@ export default function VideoPlayer({ url, roomSync, userId }: VideoPlayerProps)
       video.pause();
     }
 
-    // Seek if sync drift is bigger than 2 seconds (latency comp)
-    if (Math.abs(video.currentTime - roomSync.currentTime) > 2.0) {
+    // Sync drift correction:
+    // - big drift: hard seek
+    // - small drift: gently adjust playbackRate to converge (keeps audio/video smoother)
+    const drift = (video.currentTime || 0) - (roomSync.currentTime || 0);
+    const abs = Math.abs(drift);
+
+    if (abs > 0.75) {
+      video.playbackRate = 1;
       video.currentTime = roomSync.currentTime;
+    } else if (abs > 0.15 && roomSync.isPlaying && !video.paused) {
+      // If we're ahead, slow down; if behind, speed up
+      video.playbackRate = drift > 0 ? 0.95 : 1.05;
+    } else {
+      video.playbackRate = 1;
     }
   }, [roomSync.isPlaying, roomSync.currentTime, roomSync.lastUpdatedBy, userId]);
 
@@ -104,6 +132,20 @@ export default function VideoPlayer({ url, roomSync, userId }: VideoPlayerProps)
     }
   };
 
+  const handleTimeUpdate = () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const t = video.currentTime || 0;
+    setCurrentTime(t);
+
+    const now = Date.now();
+    if (now - lastProgressSentAtRef.current >= 1000) {
+      lastProgressSentAtRef.current = now;
+      roomSync.updateMyProgress(t, !video.paused);
+    }
+  };
+
   const togglePlay = () => {
     if (videoRef.current) {
       if (videoRef.current.paused) {
@@ -114,77 +156,153 @@ export default function VideoPlayer({ url, roomSync, userId }: VideoPlayerProps)
     }
   };
 
-  const formatTime = (time: number) => {
-    const min = Math.floor(time / 60);
-    const sec = Math.floor(time % 60);
-    return `${min}:${sec < 10 ? "0" + sec : sec}`;
+  const toggleFullscreen = () => {
+    const el = containerRef.current;
+    if (!document.fullscreenElement) {
+      el?.requestFullscreen().catch(err => {
+        console.error("Error attempting to enable fullscreen:", err);
+      });
+    } else {
+      document.exitFullscreen();
+    }
   };
 
-  return (
-    <div className="relative group w-full bg-black rounded-xl overflow-hidden shadow-2xl">
-      <video
-        ref={videoRef}
-        className="w-full h-auto aspect-video cursor-pointer bg-black"
-        onPlay={handlePlay}
-        onPause={handlePause}
-        onClick={togglePlay}
-        onTimeUpdate={() => setCurrentTime(videoRef.current?.currentTime || 0)}
-        onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
-        onWaiting={() => setIsBuffering(true)}
-        onPlaying={() => setIsBuffering(false)}
-        autoPlay={roomSync.isPlaying} // starts depending on latest sync
-      />
-      
-      {/* Buffering Indicator */}
-      {isBuffering && (
-         <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-white opacity-80">
-           <svg className="animate-spin h-10 w-10 text-red-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-             <path className="opacity-75" fill="currentColor" d="M4 12c0-4.418 3.582-8 8-8s8 3.582 8 8"></path>
-           </svg>
-         </div>
-      )}
+  const formatTime = (time: number) => {
+    if (isNaN(time)) return "0:00";
+    const h = Math.floor(time / 3600);
+    const m = Math.floor((time % 3600) / 60);
+    const s = Math.floor(time % 60);
+    if (h > 0) return `${h}:${m < 10 ? "0" + m : m}:${s < 10 ? "0" + s : s}`;
+    return `${m}:${s < 10 ? "0" + s : s}`;
+  };
 
-      {/* Controls UI overlay */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        
-        {/* Timeline Slider */}
-        <input 
-          type="range"
-          min={0}
-          max={duration || 100}
-          value={currentTime}
-          onChange={handleSeek}
-          className="w-full h-1 bg-gray-600 rounded-lg appearance-none cursor-pointer accent-red-600 hover:h-2"
+  const effectiveVolume = muted ? 0 : volume;
+  const volumePercent = Math.round(effectiveVolume * 100);
+
+  return (
+    <div ref={containerRef} className="w-full max-w-[1100px]">
+      <div className="w-full aspect-video bg-black rounded-[18px] md:rounded-[24px] overflow-hidden relative shadow-[0_30px_60px_rgba(0,0,0,0.8)] border border-white/5 group">
+        <video
+          ref={videoRef}
+          className="w-full h-full object-contain bg-black cursor-pointer"
+          onPlay={handlePlay}
+          onPause={handlePause}
+          onClick={togglePlay}
+          onTimeUpdate={handleTimeUpdate}
+          onLoadedMetadata={() => setDuration(videoRef.current?.duration || 0)}
+          onWaiting={() => setIsBuffering(true)}
+          onPlaying={() => setIsBuffering(false)}
+          autoPlay={roomSync.isPlaying}
         />
 
-        <div className="flex items-center justify-between mt-4">
-          <div className="flex items-center space-x-4">
-            <button onClick={togglePlay} className="text-white hover:text-red-500">
-              {isPlaying ? <Pause size={24} /> : <Play size={24} />}
-            </button>
-            <span className="text-white text-sm">
-              {formatTime(currentTime)} / {formatTime(duration)}
-            </span>
+        {isBuffering && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none z-10 gap-3 bg-black/40">
+            <svg className="animate-spin h-12 w-12 text-[#e50914]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <circle className="opacity-75" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" strokeDasharray="15 85" strokeLinecap="round"></circle>
+            </svg>
           </div>
-          
-          <div className="flex items-center space-x-4">
-            <button className="text-white hover:text-red-500" onClick={() => setMuted(!muted)}>
-              {muted ? <VolumeX size={24} /> : <Volume2 size={24} />}
+        )}
+
+        {!isPlaying && !isBuffering && (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none group-hover:bg-black/20 transition-colors">
+            <div className="w-[70px] h-[70px] md:w-[86px] md:h-[86px] bg-[#e50914] rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(229,9,20,0.4)]">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="white" className="ml-1"><path d="M8 5v14l11-7z" /></svg>
+            </div>
+          </div>
+        )}
+
+        {/* Bottom overlay controls (HDRezka-style) */}
+        <div className="absolute left-0 right-0 bottom-0 z-20 px-3 py-3 md:px-5 md:py-4">
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
+
+          <div className="relative pointer-events-auto flex items-center gap-3 md:gap-4">
+            <button
+              onClick={togglePlay}
+              className="shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/10 border border-white/10 hover:bg-white/15 transition flex items-center justify-center"
+              aria-label={isPlaying ? "Пауза" : "Плей"}
+            >
+              {isPlaying ? (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" /></svg>
+              ) : (
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+              )}
             </button>
-            <input 
-              type="range" min="0" max="1" step="0.05" 
-              value={muted ? 0 : volume} 
-              onChange={(e) => {
-                const num = parseFloat(e.target.value);
-                setVolume(num);
-                if (videoRef.current) videoRef.current.volume = num;
-                if (num > 0 && muted) setMuted(false);
-              }}
-              className="w-20 accent-red-600"
-            />
-            <button onClick={() => videoRef.current?.requestFullscreen()} className="text-white hover:text-red-500">
-              <Maximize size={24} />
+
+            <div className="flex-1 min-w-0 flex items-center gap-3">
+              <div className="flex-1 h-[6px] bg-white/15 rounded-[999px] relative cursor-pointer group/slider flex items-center">
+                <input
+                  type="range"
+                  min={0}
+                  max={duration || 100}
+                  value={currentTime}
+                  onChange={handleSeek}
+                  className="absolute z-30 w-full h-full opacity-0 cursor-pointer"
+                />
+                <div
+                  className="h-full bg-[#e50914] rounded-[999px] relative pointer-events-none"
+                  style={{ width: `${(currentTime / (duration || 1)) * 100}%` }}
+                >
+                  <div className="absolute -right-2 -top-[5px] w-4 h-4 bg-white rounded-full shadow-[0_0_10px_rgba(0,0,0,0.5)]" />
+                </div>
+              </div>
+
+              <span className="text-[12px] md:text-[13px] text-white/80 tabular-nums whitespace-nowrap font-medium">
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </span>
+            </div>
+
+            <button
+              onClick={roomSync.syncToFarthest}
+              className="shrink-0 bg-[#e50914] text-white px-3 py-2 md:px-4 md:py-2.5 rounded-[12px] font-semibold text-xs md:text-sm shadow-md hover:bg-[#f40b17] transition-colors whitespace-nowrap"
+            >
+              Синхр.
+            </button>
+
+            <div className="hidden sm:flex items-center gap-2">
+              <button
+                onClick={() => setMuted((v) => !v)}
+                className="text-white/80 hover:text-white transition-all outline-none p-1"
+                aria-label={muted || volume === 0 ? "Вкл. звук" : "Выкл. звук"}
+              >
+                {muted || volume === 0 ? <VolumeX size={18} /> : <Volume2 size={18} />}
+              </button>
+
+              <div className="w-[88px] md:w-[110px] h-[6px] bg-white/15 rounded-[999px] relative">
+                <input
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={effectiveVolume}
+                  onChange={(e) => {
+                    const num = parseFloat(e.target.value);
+                    setVolume(num);
+                    if (num > 0 && muted) setMuted(false);
+                  }}
+                  className="absolute inset-0 z-20 w-full h-full opacity-0 cursor-pointer"
+                />
+                <div
+                  className="h-full bg-[#e50914] rounded-[999px]"
+                  style={{ width: `${volumePercent}%` }}
+                />
+                <div
+                  className="absolute -top-[5px] w-4 h-4 bg-white rounded-full shadow-[0_0_10px_rgba(0,0,0,0.5)]"
+                  style={{ left: `calc(${volumePercent}% - 8px)` }}
+                />
+              </div>
+
+              <span className="text-[11px] text-white/70 tabular-nums w-[38px] text-right">
+                {volumePercent}%
+              </span>
+            </div>
+
+            <button
+              onClick={toggleFullscreen}
+              className="shrink-0 w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/10 border border-white/10 hover:bg-white/15 transition flex items-center justify-center"
+              aria-label="На весь экран"
+            >
+              <Maximize size={18} />
             </button>
           </div>
         </div>

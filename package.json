@@ -9,7 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.9",
     "clsx": "^2.1.1",
+    "copy-to-clipboard": "^3.3.3",
     "firebase": "^12.11.0",
     "hls.js": "^1.6.15",
     "lucide-react": "^1.7.0",

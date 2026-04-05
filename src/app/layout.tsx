@@ -1,10 +1,25 @@
 import type { Metadata } from "next";
 import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
+import { Space_Grotesk, Unbounded } from "next/font/google";
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-sans",
+  display: "swap",
+});
+
+const unbounded = Unbounded({
+  subsets: ["latin"],
+  weight: ["600", "800"],
+  variable: "--font-display",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
-  title: "Arysia Watch Party",
-  description: "Dark-themed Netflix-style watch party",
+  title: "aisyrA",
+  description: "Synchronized modern streaming platform",
 };
 
 export default function RootLayout({
@@ -14,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="bg-zinc-950 text-white min-h-screen font-sans antialiased">
+      <body className={`${spaceGrotesk.variable} ${unbounded.variable} min-h-screen antialiased`}>
         <AuthProvider>
           {children}
         </AuthProvider>

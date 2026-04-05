@@ -7,7 +7,7 @@ import { database } from "@/lib/firebase";
 import { ref, get, child, set } from "firebase/database";
 
 export default function Home() {
-  const { user, login, logoutUser } = useAuth();
+  const { user, login, logoutUser, authError } = useAuth();
   const router = useRouter();
   const [roomId, setRoomId] = useState("");
   const [error, setError] = useState("");
@@ -98,6 +98,11 @@ export default function Home() {
             <button onClick={login} className="w-full flex items-center justify-center gap-2 py-3.5 rounded-[10px] text-[16px] font-semibold cursor-pointer transition-all border-none bg-[#e50914] hover:bg-[#f40b17] hover:-translate-y-[2px] shadow-[0_5px_15px_rgba(229,9,20,0.4)]">
               Sign In with Google
             </button>
+            {authError && (
+              <p className="mt-4 text-[#e50914] text-[13px] font-semibold">
+                {authError}
+              </p>
+            )}
            </>
         ) : (
           <>

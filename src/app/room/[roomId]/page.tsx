@@ -9,10 +9,13 @@ import { Menu, X, Play } from "lucide-react";
 
 // Mock Data Structure
 const SERIES_DB = [
-  { id: "E01", title: "The Red Mask", url: "" },
-  { id: "E02", title: "The Plan Begins", url: "" },
-  { id: "E06", title: "La Casa De Papel", url: "" },
-  { id: "E07", title: "The Mastermind", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/ep-seven/index.m3u8" }
+  { id: "E07", title: "Эпизод 7", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/ep-seven/index.m3u8" },
+  { id: "E08", title: "Эпизод 8", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/ep-eight/index.m3u8" },
+  { id: "E09", title: "Эпизод 9", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/nine/index.m3u8" },
+  { id: "E10", title: "Эпизод 10", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/ten/index.m3u8" },
+  { id: "E11", title: "Эпизод 11", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/eleven/index.m3u8" },
+  { id: "E12", title: "Эпизод 12", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/twelwe/index.m3u8" },
+  { id: "E13", title: "Эпизод 13", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/thirteen/index.m3u8" }
 ];
 
 export default function RoomPage() {

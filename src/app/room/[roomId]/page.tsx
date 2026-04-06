@@ -15,7 +15,8 @@ const SERIES_DB = [
   { id: "E10", title: "Эпизод 10", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/ten/index.m3u8" },
   { id: "E11", title: "Эпизод 11", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/eleven/index.m3u8" },
   { id: "E12", title: "Эпизод 12", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/twelwe/index.m3u8" },
-  { id: "E13", title: "Эпизод 13", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/thirteen/index.m3u8" }
+  { id: "E13", title: "Эпизод 13", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/thirteen/index.m3u8" },
+  { id: "S2E01", title: "Сезон 2 • Эпизод 1", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep1/index.m3u8" }
 ];
 
 export default function RoomPage() {

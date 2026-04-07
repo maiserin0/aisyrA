@@ -27,6 +27,21 @@ export default function RoomPage() {
   const router = useRouter();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  // Easter egg / Secret button state
+  const [showSecretModal, setShowSecretModal] = useState(false);
+  const [secretCode, setSecretCode] = useState("");
+  const [isMonkeyUnlocked, setIsMonkeyUnlocked] = useState(false);
+
+  const handleSecretSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (secretCode === "29042010" || secretCode === "29.04.2010") {
+      setIsMonkeyUnlocked(true);
+    } else {
+      alert("Неправильний код! :(");
+      setSecretCode("");
+    }
+  };
+
   const formatClock = (time: number) => {
     if (!Number.isFinite(time) || time < 0) return "0:00";
     const m = Math.floor(time / 60);
@@ -102,18 +117,99 @@ export default function RoomPage() {
           </div>
         </div>
 
-        <div className="p-5 border-t border-white/5 flex items-center gap-3 bg-black/20">
-          <img
-            src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}&bg=e50914&color=fff`}
-            alt={user.displayName || "Avatar"}
-            className="w-10 h-10 rounded-lg border border-white/10"
-          />
-          <div className="flex flex-col">
-            <span className="font-semibold text-sm">{user.displayName}</span>
-            <span className="text-xs text-[#999]">Host • #{roomId}</span>
+        <div className="p-5 border-t border-white/5 flex flex-col gap-3 bg-black/20">
+          <div className="flex items-center gap-3">
+            <img
+              src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}&bg=e50914&color=fff`}
+              alt={user.displayName || "Avatar"}
+              className="w-10 h-10 rounded-lg border border-white/10"
+            />
+            <div className="flex flex-col">
+              <span className="font-semibold text-sm">{user.displayName}</span>
+              <span className="text-xs text-[#999]">Host • #{roomId}</span>
+            </div>
           </div>
+          
+          <button 
+            onClick={() => setShowSecretModal(true)}
+            className="mt-2 font-bold text-[13px] text-white/50 hover:text-white bg-white/5 hover:bg-[#e50914] transition-all duration-300 w-full py-2.5 rounded-xl border border-transparent hover:border-[#f40b17]/50 shadow-md hover:shadow-[0_0_15px_rgba(229,9,20,0.4)] uppercase tracking-wider"
+          >
+            Тикай сюди 🐒
+          </button>
         </div>
       </aside>
+
+      {/* Secret Modal / Easter Egg */}
+      {showSecretModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 px-4 backdrop-blur-md">
+          <div className="bg-[#141414] border border-white/10 rounded-[20px] w-full max-w-sm overflow-hidden shadow-[0_0_80px_rgba(229,9,20,0.15)] animate-in fade-in zoom-in duration-300">
+            <div className="p-4 border-b border-white/5 flex justify-between items-center">
+              <h3 className="font-bold text-lg text-[#e50914]"></h3>
+              <button 
+                onClick={() => {
+                  setShowSecretModal(false);
+                  setIsMonkeyUnlocked(false);
+                  setSecretCode("");
+                }} 
+                className="text-gray-400 hover:text-white bg-white/5 hover:bg-[#e50914] p-1.5 rounded-full transition-colors"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            
+            <div className="p-6 flex flex-col items-center">
+              {!isMonkeyUnlocked ? (
+                <form onSubmit={handleSecretSubmit} className="w-full flex flex-col items-center gap-4">
+                  <p className="text-sm text-gray-300 text-center">
+                    Введіть код:
+                  </p>
+                  <input 
+                    type="password" 
+                    value={secretCode}
+                    onChange={(e) => setSecretCode(e.target.value)}
+                    placeholder="Пароль..."
+                    className="w-full bg-black/50 border border-white/20 rounded-xl px-4 py-3 text-center text-lg outline-none focus:border-[#e50914] transition-colors"
+                  />
+                  <button 
+                    type="submit"
+                    className="w-full bg-[#e50914] text-white py-3 rounded-xl font-bold hover:bg-[#f40b17] transition-all"
+                  >
+                    Відкрити
+                  </button>
+                </form>
+              ) : (
+                <div className="flex flex-col items-center gap-5 animate-in fade-in slide-in-from-bottom-4 duration-500 w-full">
+                  <p className="text-[25px] font-black text-center text-white tracking-widest uppercase drop-shadow-[0_2px_10px_rgba(229,9,20,0.8)]">ЛЯ ТИ ОБІЗЯНА</p>
+                  
+                  <div className="relative group perspective-1000">
+                    <img 
+                      src="/alya.png" 
+                      alt="Funny monkey" 
+                      className="w-[220px] h-[300px] sm:h-[340px] sm:w-[260px] object-cover rounded-[20px] shadow-[0_20px_50px_rgba(229,9,20,0.4)] border border-white/10 transition-transform duration-500 group-hover:scale-105 group-hover:rotate-1"
+                    />
+                    <div className="absolute inset-0 rounded-[20px] ring-2 ring-inset ring-white/10 group-hover:ring-[#e50914]/50 pointer-events-none transition-all duration-500" />
+                  </div>
+
+                  <p className="text-sm text-[#999] text-center font-medium mt-2 bg-white/5 py-1.5 px-4 rounded-full">
+                    
+                  </p>
+                  
+                  <button 
+                    onClick={() => {
+                      setShowSecretModal(false);
+                      setIsMonkeyUnlocked(false);
+                      setSecretCode("");
+                    }}
+                    className="mt-3 w-[80%] text-sm text-white bg-[#e50914] hover:bg-[#f40b17] py-3 rounded-xl font-bold transition-all hover:scale-[1.02] shadow-[0_0_20px_rgba(229,9,20,0.3)] active:scale-95"
+                  >
+                    Закрити
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       <main className="flex-1 flex flex-col relative w-full h-full min-w-0">
         <div className="p-4 md:px-10 md:py-5 flex justify-between items-center bg-gradient-to-b from-black/80 to-transparent shrink-0">

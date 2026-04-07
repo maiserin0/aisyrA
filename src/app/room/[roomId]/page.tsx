@@ -12,7 +12,12 @@ const SERIES_DB = [
   { id: "S2E01", title: "Эпизод 1", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep1/index.m3u8" },
   { id: "S2E02", title: "Эпизод 2", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep2/index.m3u8" },
   { id: "S2E03", title: "Эпизод 3", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep3/index.m3u8" },
-  { id: "S2E04", title: "Эпизод 4", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep4/index.m3u8" }
+  { id: "S2E04", title: "Эпизод 4", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep4/index.m3u8" },
+  { id: "S2E05", title: "Эпизод 5", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep5/index.m3u8" },
+  { id: "S2E06", title: "Эпизод 6", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep6/index.m3u8" },
+  { id: "S2E07", title: "Эпизод 7", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep7/index.m3u8" },
+  { id: "S2E08", title: "Эпизод 8", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/a2ep8/index.m3u8" },
+  { id: "S2E09", title: "Эпизод 9", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep9/index.m3u8" }
 ];
 
 export default function RoomPage() {

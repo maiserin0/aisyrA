@@ -9,14 +9,10 @@ import { Menu, X, Play } from "lucide-react";
 
 // Mock Data Structure
 const SERIES_DB = [
-  { id: "E07", title: "Эпизод 7", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/ep-seven/index.m3u8" },
-  { id: "E08", title: "Эпизод 8", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/ep-eight/index.m3u8" },
-  { id: "E09", title: "Эпизод 9", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/nine/index.m3u8" },
-  { id: "E10", title: "Эпизод 10", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/ten/index.m3u8" },
-  { id: "E11", title: "Эпизод 11", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/eleven/index.m3u8" },
-  { id: "E12", title: "Эпизод 12", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/twelwe/index.m3u8" },
-  { id: "E13", title: "Эпизод 13", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/thirteen/index.m3u8" },
-  { id: "S2E01", title: "Сезон 2 • Эпизод 1", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep1/index.m3u8" }
+  { id: "S2E01", title: "Эпизод 1", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep1/index.m3u8" },
+  { id: "S2E02", title: "Эпизод 2", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep2/index.m3u8" },
+  { id: "S2E03", title: "Эпизод 3", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep3/index.m3u8" },
+  { id: "S2E04", title: "Эпизод 4", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep4/index.m3u8" }
 ];
 
 export default function RoomPage() {
@@ -73,7 +69,7 @@ export default function RoomPage() {
         </div>
 
         <div className="flex-1 overflow-y-auto px-[20px] py-[10px]">
-          <h3 className="text-[12px] text-[#999] uppercase mb-[20px] pl-[10px] font-bold tracking-wider">Money Heist - Season 1</h3>
+          <h3 className="text-[12px] text-[#999] uppercase mb-[20px] pl-[10px] font-bold tracking-wider">Бумажный дом — Сезон 2</h3>
           <div className="space-y-2">
             {SERIES_DB.map(ep => {
               const isActive = roomState?.videoUrl && ep.url && roomState.videoUrl === ep.url;

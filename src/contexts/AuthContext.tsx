@@ -42,9 +42,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           ? ((e as any).code as string)
           : undefined;
       // Most common on Vercel: auth/unauthorized-domain
+      const domain = typeof window !== "undefined" ? window.location.hostname : "этот домен";
       const message =
         code === "auth/unauthorized-domain"
-          ? "Домен не разрешён в Firebase Auth (Authorized domains)."
+          ? `Домен "${domain}" не разрешён в Firebase Auth. Проверь Authorized domains.`
           : code === "auth/popup-blocked"
           ? "Браузер заблокировал popup. Разреши всплывающие окна."
           : code === "auth/popup-closed-by-user"

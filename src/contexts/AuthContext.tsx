@@ -1,6 +1,6 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { auth, loginWithGoogle, logout } from "../lib/firebase";
+import { auth, loginWithGoogle, logout, loginGuest } from "../lib/firebase";
 import { User, onAuthStateChanged, getRedirectResult } from "firebase/auth";
 
 type AuthContextType = {
@@ -8,6 +8,7 @@ type AuthContextType = {
   loading: boolean;
   authError: string;
   login: () => Promise<void>;
+  loginAsGuest: () => Promise<void>;
   logoutUser: () => Promise<void>;
 };
 
@@ -59,12 +60,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const loginAsGuest = async () => {
+    try {
+      setAuthError("");
+      await loginGuest();
+    } catch (e: any) {
+      setAuthError("Ошибка входа как гость.");
+      console.error("Guest login failed:", e);
+    }
+  };
+
   const logoutUser = async () => {
     await logout();
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, authError, login, logoutUser }}>
+    <AuthContext.Provider value={{ user, loading, authError, login, loginAsGuest, logoutUser }}>
       {children}
     </AuthContext.Provider>
   );

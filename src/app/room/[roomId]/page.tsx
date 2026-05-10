@@ -49,10 +49,6 @@ export default function RoomPage() {
     return `${m}:${s < 10 ? "0" : ""}${s}`;
   };
 
-  useEffect(() => {
-    if (!loading && !user) router.push("/");
-  }, [user, loading, router]);
-
   const activeEpisode = useMemo(() => {
     if (roomState?.videoUrl) {
       return SERIES_DB.find(ep => ep.url && ep.url === roomState.videoUrl) || null;
@@ -60,7 +56,7 @@ export default function RoomPage() {
     return SERIES_DB.find(ep => ep.url) || null;
   }, [roomState?.videoUrl]);
 
-  if (loading || !user) return <div className="h-screen flex items-center justify-center">Loading...</div>;
+  if (loading) return <div className="h-screen flex items-center justify-center">Loading...</div>;
 
   return (
     <div className="flex h-screen room-shell text-white overflow-hidden">

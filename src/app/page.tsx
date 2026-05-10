@@ -7,7 +7,7 @@ import { database } from "@/lib/firebase";
 import { ref, get, child, set } from "firebase/database";
 
 export default function Home() {
-  const { user, login, logoutUser, authError } = useAuth();
+  const { user, login, loginAsGuest, logoutUser, authError } = useAuth();
   const router = useRouter();
   const [roomId, setRoomId] = useState("");
   const [error, setError] = useState("");
@@ -28,9 +28,22 @@ export default function Home() {
     }
   };
 
+  const handleJoinGuest = async () => {
+    const trimmedId = roomId.trim().toUpperCase();
+    if (!trimmedId) return setError("Введи код кімнаты");
+    setLoading(true);
+    try {
+      router.push(`/room/${trimmedId}`);
+    } catch {
+      setError("Ошибка.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleJoin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return login();
+    if (!user) return handleJoinGuest();
     const trimmedId = roomId.trim().toUpperCase();
     if (!trimmedId) return;
     
@@ -93,10 +106,13 @@ export default function Home() {
       <div className="panel-card p-6 sm:p-10 w-full max-w-[420px] text-center relative z-10 transition-all fade-in">
         {!user ? (
            <>
-            <h1 className="text-[26px] sm:text-[32px] mb-2 font-extrabold">Welcome back</h1>
-            <p className="text-[#b3b3b3] mb-6 text-[14px]">Sign in to start watching together.</p>
-            <button onClick={login} className="w-full flex items-center justify-center gap-2 py-3.5 rounded-[10px] text-[16px] font-semibold cursor-pointer transition-all border-none bg-[#e50914] hover:bg-[#f40b17] hover:-translate-y-[2px] shadow-[0_5px_15px_rgba(229,9,20,0.4)]">
-              Sign In with Google
+            <h1 className="text-[26px] sm:text-[32px] mb-2 font-extrabold">Welcome</h1>
+            <p className="text-[#b3b3b3] mb-6 text-[14px]">Готов смотреть вместе?</p>
+            <button onClick={login} className="w-full flex items-center justify-center gap-2 py-3.5 rounded-[10px] text-[16px] font-semibold cursor-pointer transition-all border-none bg-[#e50914] hover:bg-[#f40b17] shadow-[0_5px_15px_rgba(229,9,20,0.4)] mb-3">
+              Войти через Google
+            </button>
+            <button onClick={loginAsGuest} className="w-full flex items-center justify-center gap-2 py-3.5 rounded-[10px] text-[16px] font-semibold cursor-pointer transition-all border-2 border-[#2f2f2f] bg-transparent hover:border-[#444] hover:bg-white/5">
+              Войти не регистрируясь
             </button>
             {authError && (
               <p className="mt-4 text-[#e50914] text-[13px] font-semibold">

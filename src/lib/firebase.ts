@@ -4,14 +4,14 @@ import { getDatabase } from "firebase/database";
 import { getAnalytics, isSupported } from "firebase/analytics";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC4OSscCj6QXpabFrrCH1clf5GLhK4COeI",
-  authDomain: "aisyra-d70bd.firebaseapp.com",
-  databaseURL: "https://aisyra-d70bd-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "aisyra-d70bd",
-  storageBucket: "aisyra-d70bd.firebasestorage.app",
-  messagingSenderId: "843319400543",
-  appId: "1:843319400543:web:33e19a6d7bf3e798c423ea",
-  measurementId: "G-0T74QEGQGX"
+  apiKey: "AIzaSyBUaVPvFHA4yRdSc1MaeEZGKGuiOciRHc4",
+  authDomain: "localomt-44ed6.firebaseapp.com",
+  databaseURL: "https://localomt-44ed6-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "localomt-44ed6",
+  storageBucket: "localomt-44ed6.firebasestorage.app",
+  messagingSenderId: "631442291706",
+  appId: "1:631442291706:web:1657508e1b2af8ccbb4243",
+  measurementId: "G-JBNLJ3NJGB"
 };
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();

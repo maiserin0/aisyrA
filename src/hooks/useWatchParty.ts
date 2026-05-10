@@ -56,12 +56,10 @@ export const useWatchParty = (roomId: string) => {
 
     const participantRef = ref(database, `rooms/${roomId}/participants/${user.uid}`);
     const displayName = user.displayName || user.email || 'User';
-    const photoURL = user.photoURL || undefined;
-
     update(participantRef, {
       uid: user.uid,
       displayName,
-      photoURL,
+      photoURL: user.photoURL || null,
       currentTime: roomState?.currentTime || 0,
       isPlaying: roomState?.isPlaying || false,
       updatedAt: Date.now(),

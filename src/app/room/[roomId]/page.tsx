@@ -230,7 +230,7 @@ export default function RoomPage() {
 
         {roomState?.videoUrl ? (
           <div className="flex-1 px-4 md:px-10 pb-5 flex flex-col gap-4 items-center w-full min-h-0 overflow-y-auto">
-            <VideoPlayer url={roomState.videoUrl} roomSync={syncFunctions} userId={user.uid} />
+            <VideoPlayer url={roomState.videoUrl} roomSync={syncFunctions} userId={user?.uid || "guest"} />
 
             <div className="w-full max-w-[1100px] control-panel rounded-[16px] p-4 md:p-5">
               <div className="flex items-center justify-between gap-3">

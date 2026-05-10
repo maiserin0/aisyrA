@@ -116,12 +116,12 @@ export default function RoomPage() {
         <div className="p-5 border-t border-white/5 flex flex-col gap-3 bg-black/20">
           <div className="flex items-center gap-3">
             <img
-              src={user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName}&bg=e50914&color=fff`}
-              alt={user.displayName || "Avatar"}
+              src={user?.photoURL || `https://ui-avatars.com/api/?name=${user?.displayName || "Гість"}&bg=e50914&color=fff`}
+              alt={user?.displayName || "Avatar"}
               className="w-10 h-10 rounded-lg border border-white/10"
             />
             <div className="flex flex-col">
-              <span className="font-semibold text-sm">{user.displayName}</span>
+              <span className="font-semibold text-sm">{user?.displayName || "Гість"}</span>
               <span className="text-xs text-[#999]">Host • #{roomId}</span>
             </div>
           </div>

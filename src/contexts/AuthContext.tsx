@@ -1,7 +1,7 @@
 "use client";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { auth, loginWithGoogle, logout } from "../lib/firebase";
-import { User, onAuthStateChanged } from "firebase/auth";
+import { User, onAuthStateChanged, getRedirectResult } from "firebase/auth";
 
 type AuthContextType = {
   user: User | null;
@@ -19,6 +19,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [authError, setAuthError] = useState("");
 
   useEffect(() => {
+    // Check for errors from redirect
+    getRedirectResult(auth).catch((e) => {
+      console.error("Redirect login error:", e);
+      setAuthError(`Ошибка редиректа: ${e.code || e.message}`);
+    });
+
     const unsubscribe = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setLoading(false);

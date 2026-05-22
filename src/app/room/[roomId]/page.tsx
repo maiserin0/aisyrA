@@ -17,7 +17,12 @@ const SERIES_DB = [
   { id: "S2E06", title: "Эпизод 6", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep6/index.m3u8" },
   { id: "S2E07", title: "Эпизод 7", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep7/index.m3u8" },
   { id: "S2E08", title: "Эпизод 8", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/a2ep8/index.m3u8" },
-  { id: "S2E09", title: "Эпизод 9", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep9/index.m3u8" }
+  { id: "S2E09", title: "Эпизод 9", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep9/index.m3u8" },
+  { id: "S3E01", title: "Эпизод 1", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep1/index.m3u8" },
+  { id: "S3E02", title: "Эпизод 2", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep2/index.m3u8" },
+  { id: "S3E03", title: "Эпизод 3", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep3/index.m3u8" },
+  { id: "S3E04", title: "Эпизод 4", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep4/index.m3u8" },
+  { id: "S3E05", title: "Эпизод 5", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep5/index.m3u8" }
 ];
 
 export default function RoomPage() {
@@ -85,32 +90,44 @@ export default function RoomPage() {
         </div>
 
         <div className="flex-1 overflow-y-auto px-[20px] py-[10px]">
-          <h3 className="text-[12px] text-[#999] uppercase mb-[20px] pl-[10px] font-bold tracking-wider">Бумажный дом — Сезон 2</h3>
-          <div className="space-y-2">
-            {SERIES_DB.map(ep => {
-              const isActive = roomState?.videoUrl && ep.url && roomState.videoUrl === ep.url;
-              const isDisabled = !ep.url;
-              return (
-                <button
-                  key={ep.id}
-                  onClick={() => {
-                    if (ep.url) syncFunctions.changeVideo(ep.url);
-                    setIsSidebarOpen(false);
-                  }}
-                  disabled={isDisabled}
-                  className={`
-                    w-full p-[15px] rounded-[12px] text-left transition-colors duration-300
-                    flex items-center gap-[12px] border border-transparent
-                    ${isActive ? "bg-[#e50914]/10 border-[#e50914] text-white shadow-sm" : "hover:bg-white/5 text-gray-300"}
-                    ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
-                  `}
-                >
-                  <span className="text-[11px] bg-[#333] px-[6px] py-[2px] rounded-[4px] text-[#999] font-bold">{ep.id}</span>
-                  <span className="font-semibold text-sm leading-tight">{ep.title}</span>
-                </button>
-              );
-            })}
-          </div>
+          {["Сезон 2", "Сезон 3"].map((seasonName, idx) => {
+            const seasonPrefix = seasonName === "Сезон 2" ? "S2" : "S3";
+            const episodes = SERIES_DB.filter(ep => ep.id.startsWith(seasonPrefix));
+            if (episodes.length === 0) return null;
+            
+            return (
+              <div key={seasonPrefix} className={idx > 0 ? "mt-[30px]" : ""}>
+                <h3 className="text-[12px] text-[#999] uppercase mb-[20px] pl-[10px] font-bold tracking-wider">
+                  Бумажный дом — {seasonName}
+                </h3>
+                <div className="space-y-2">
+                  {episodes.map(ep => {
+                    const isActive = roomState?.videoUrl && ep.url && roomState.videoUrl === ep.url;
+                    const isDisabled = !ep.url;
+                    return (
+                      <button
+                        key={ep.id}
+                        onClick={() => {
+                          if (ep.url) syncFunctions.changeVideo(ep.url);
+                          setIsSidebarOpen(false);
+                        }}
+                        disabled={isDisabled}
+                        className={`
+                          w-full p-[15px] rounded-[12px] text-left transition-colors duration-300
+                          flex items-center gap-[12px] border border-transparent
+                          ${isActive ? "bg-[#e50914]/10 border-[#e50914] text-white shadow-sm" : "hover:bg-white/5 text-gray-300"}
+                          ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}
+                        `}
+                      >
+                        <span className="text-[11px] bg-[#333] px-[6px] py-[2px] rounded-[4px] text-[#999] font-bold">{ep.id}</span>
+                        <span className="font-semibold text-sm leading-tight">{ep.title}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         <div className="p-5 border-t border-white/5 flex flex-col gap-3 bg-black/20">

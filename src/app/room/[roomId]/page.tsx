@@ -22,7 +22,10 @@ const SERIES_DB = [
   { id: "S3E02", title: "Эпизод 2", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep2/index.m3u8" },
   { id: "S3E03", title: "Эпизод 3", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep3/index.m3u8" },
   { id: "S3E04", title: "Эпизод 4", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep4/index.m3u8" },
-  { id: "S3E05", title: "Эпизод 5", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep5/index.m3u8" }
+  { id: "S3E05", title: "Эпизод 5", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep5/index.m3u8" },
+  { id: "S3E06", title: "Эпизод 6", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep6/index.m3u8" },
+  { id: "S3E07", title: "Эпизод 7", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep7/index.m3u8" },
+  { id: "S3E08", title: "Эпизод 8", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep8/index.m3u8" }
 ];
 
 export default function RoomPage() {

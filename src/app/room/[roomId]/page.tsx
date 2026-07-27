@@ -9,15 +9,6 @@ import { Menu, X, Play } from "lucide-react";
 
 // Mock Data Structure
 const SERIES_DB = [
-  { id: "S2E01", title: "Эпизод 1", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep1/index.m3u8" },
-  { id: "S2E02", title: "Эпизод 2", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep2/index.m3u8" },
-  { id: "S2E03", title: "Эпизод 3", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep3/index.m3u8" },
-  { id: "S2E04", title: "Эпизод 4", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep4/index.m3u8" },
-  { id: "S2E05", title: "Эпизод 5", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep5/index.m3u8" },
-  { id: "S2E06", title: "Эпизод 6", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep6/index.m3u8" },
-  { id: "S2E07", title: "Эпизод 7", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep7/index.m3u8" },
-  { id: "S2E08", title: "Эпизод 8", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/a2ep8/index.m3u8" },
-  { id: "S2E09", title: "Эпизод 9", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s2ep9/index.m3u8" },
   { id: "S3E01", title: "Эпизод 1", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep1/index.m3u8" },
   { id: "S3E02", title: "Эпизод 2", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep2/index.m3u8" },
   { id: "S3E03", title: "Эпизод 3", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep3/index.m3u8" },
@@ -25,7 +16,9 @@ const SERIES_DB = [
   { id: "S3E05", title: "Эпизод 5", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep5/index.m3u8" },
   { id: "S3E06", title: "Эпизод 6", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep6/index.m3u8" },
   { id: "S3E07", title: "Эпизод 7", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep7/index.m3u8" },
-  { id: "S3E08", title: "Эпизод 8", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep8/index.m3u8" }
+  { id: "S3E08", title: "Эпизод 8", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep8/index.m3u8" },
+  { id: "S4E01", title: "Эпизод 1", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s4ep1/index.m3u8" },
+  { id: "S4E02", title: "Эпизод 2", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s4ep2/index.m3u8" }
 ];
 
 export default function RoomPage() {
@@ -93,8 +86,9 @@ export default function RoomPage() {
         </div>
 
         <div className="flex-1 overflow-y-auto px-[20px] py-[10px]">
-          {["Сезон 2", "Сезон 3"].map((seasonName, idx) => {
-            const seasonPrefix = seasonName === "Сезон 2" ? "S2" : "S3";
+          {[{ name: "Сезон 3", prefix: "S3" }, { name: "Сезон 4", prefix: "S4" }].map((season, idx) => {
+            const seasonName = season.name;
+            const seasonPrefix = season.prefix;
             const episodes = SERIES_DB.filter(ep => ep.id.startsWith(seasonPrefix));
             if (episodes.length === 0) return null;
             

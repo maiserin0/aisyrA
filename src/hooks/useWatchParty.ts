@@ -9,6 +9,7 @@ export type RoomState = {
   currentTime: number;
   isPlaying: boolean;
   lastUpdatedBy: string;
+  timestamp?: number;
   videoUrl?: string; // Optional dynamically loaded url for room sync
 };
 
@@ -114,6 +115,7 @@ export const useWatchParty = (roomId: string) => {
     isPlaying: roomState?.isPlaying || false,
     currentTime: roomState?.currentTime || 0,
     lastUpdatedBy: roomState?.lastUpdatedBy || '',
+    timestamp: roomState?.timestamp || 0,
     onPlay: (time: number) => pushState(true, time),
     onPause: (time: number) => pushState(false, time),
     onSeek: (time: number) => pushState(roomState?.isPlaying || false, time),
@@ -121,7 +123,7 @@ export const useWatchParty = (roomId: string) => {
     syncToFarthest,
     changeVideo: (url: string) => {
       if (!user || !roomId) return;
-      update(ref(database, `rooms/${roomId}`), { videoUrl: url, currentTime: 0, isPlaying: false, lastUpdatedBy: user.uid });
+      update(ref(database, `rooms/${roomId}`), { videoUrl: url, currentTime: 0, isPlaying: false, lastUpdatedBy: user.uid, timestamp: Date.now() });
     }
   };
 

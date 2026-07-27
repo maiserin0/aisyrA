@@ -10,6 +10,7 @@ interface VideoPlayerProps {
     isPlaying: boolean;
     currentTime: number;
     lastUpdatedBy: string;
+    timestamp?: number;
     onPlay: (time: number) => void;
     onPause: (time: number) => void;
     onSeek: (time: number) => void;
@@ -23,6 +24,7 @@ export default function VideoPlayer({ url, roomSync, userId }: VideoPlayerProps)
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const lastProgressSentAtRef = useRef(0);
+  const applyingRemoteSyncRef = useRef(false);
   const [hls, setHls] = useState<Hls | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -41,10 +43,10 @@ export default function VideoPlayer({ url, roomSync, userId }: VideoPlayerProps)
     if (Hls.isSupported()) {
       newHls = new Hls({
         enableWorker: true,
-        lowLatencyMode: true,
-        backBufferLength: 30,
-        maxBufferLength: 8,
-        maxMaxBufferLength: 30,
+        lowLatencyMode: false,
+        backBufferLength: 60,
+        maxBufferLength: 30,
+        maxMaxBufferLength: 60,
         maxBufferHole: 0.5,
         nudgeOffset: 0.1,
         nudgeMaxRetry: 5,
@@ -81,45 +83,67 @@ export default function VideoPlayer({ url, roomSync, userId }: VideoPlayerProps)
     const video = videoRef.current;
     if (!video) return;
 
-    // Ignore sync updates that WE originated 
-    // Wait, the hook outside determines it, but here we enforce remote updates
-    if (roomSync.lastUpdatedBy === userId) return;
+    const getTargetTime = () => {
+      const base = roomSync.currentTime || 0;
+      if (!roomSync.isPlaying || !roomSync.timestamp) return base;
+      return base + Math.max(0, (Date.now() - roomSync.timestamp) / 1000);
+    };
 
-    if (roomSync.isPlaying && video.paused) {
-      video.play().catch(e => console.error("Playback prevented:", e));
-    } else if (!roomSync.isPlaying && !video.paused) {
-      video.pause();
+    const releaseRemoteGuard = () => {
+      window.setTimeout(() => {
+        applyingRemoteSyncRef.current = false;
+      }, 250);
+    };
+
+    const correctDrift = (targetTime: number, allowSeek: boolean) => {
+      const drift = (video.currentTime || 0) - targetTime;
+      const abs = Math.abs(drift);
+
+      if (allowSeek && abs > 1.25) {
+        applyingRemoteSyncRef.current = true;
+        video.playbackRate = 1;
+        video.currentTime = targetTime;
+        releaseRemoteGuard();
+      } else if (abs > 0.18 && roomSync.isPlaying && !video.paused) {
+        video.playbackRate = drift > 0 ? 0.96 : 1.06;
+      } else {
+        video.playbackRate = 1;
+      }
+    };
+
+    if (roomSync.lastUpdatedBy !== userId) {
+      if (roomSync.isPlaying && video.paused) {
+        applyingRemoteSyncRef.current = true;
+        video.play().catch(e => console.error("Playback prevented:", e));
+        releaseRemoteGuard();
+      } else if (!roomSync.isPlaying && !video.paused) {
+        applyingRemoteSyncRef.current = true;
+        video.pause();
+        releaseRemoteGuard();
+      }
     }
 
-    // Sync drift correction:
-    // - big drift: hard seek
-    // - small drift: gently adjust playbackRate to converge (keeps audio/video smoother)
-    const drift = (video.currentTime || 0) - (roomSync.currentTime || 0);
-    const abs = Math.abs(drift);
-
-    if (abs > 0.75) {
-      video.playbackRate = 1;
-      video.currentTime = roomSync.currentTime;
-    } else if (abs > 0.15 && roomSync.isPlaying && !video.paused) {
-      // If we're ahead, slow down; if behind, speed up
-      video.playbackRate = drift > 0 ? 0.95 : 1.05;
-    } else {
-      video.playbackRate = 1;
-    }
-  }, [roomSync.isPlaying, roomSync.currentTime, roomSync.lastUpdatedBy, userId]);
+    correctDrift(getTargetTime(), true);
+    const driftTimer = window.setInterval(() => correctDrift(getTargetTime(), false), 1500);
+    return () => window.clearInterval(driftTimer);
+  }, [roomSync.isPlaying, roomSync.currentTime, roomSync.timestamp, roomSync.lastUpdatedBy, userId]);
 
   // Video Event Handlers targeting internal update + dispatch to Sync Hook
   const handlePlay = () => {
     if (videoRef.current) {
       setIsPlaying(true);
-      roomSync.onPlay(videoRef.current.currentTime);
+      if (!applyingRemoteSyncRef.current) {
+        roomSync.onPlay(videoRef.current.currentTime);
+      }
     }
   };
 
   const handlePause = () => {
     if (videoRef.current) {
       setIsPlaying(false);
-      roomSync.onPause(videoRef.current.currentTime);
+      if (!applyingRemoteSyncRef.current) {
+        roomSync.onPause(videoRef.current.currentTime);
+      }
     }
   };
 

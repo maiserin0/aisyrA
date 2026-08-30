@@ -18,7 +18,8 @@ const SERIES_DB = [
   { id: "S3E07", title: "Эпизод 7", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep7/index.m3u8" },
   { id: "S3E08", title: "Эпизод 8", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s3ep8/index.m3u8" },
   { id: "S4E01", title: "Эпизод 1", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s4ep1/index.m3u8" },
-  { id: "S4E02", title: "Эпизод 2", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s4ep2/index.m3u8" }
+  { id: "S4E02", title: "Эпизод 2", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/s4ep2/index.m3u8" },
+  { id: "S4E03", title: "Aterrados", url: "https://pub-7dc63307e2754d61b8bcc0de12468371.r2.dev/film1/index.m3u8" }
 ];
 
 export default function RoomPage() {
